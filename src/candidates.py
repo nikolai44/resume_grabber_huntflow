@@ -113,7 +113,14 @@ def add_status_id(canditates: list, statuses: list):
 def clean_candidate(candidate, cv_data):
 	# ухх
 	cleaned_candidate = dict()
+	last_name = cv_data['fields']['name']['last'],
+	print(type(cv_data['fields']['name']['last']))
+	print(type(last_name))
 	with suppress(KeyError):
+		last_name = cv_data['fields']['name']['last'],
+		print(type(cv_data['fields']['name']['last']))
+		print(type(last_name))
+		last_name = str(last_name)
 		cleaned_candidate['last_name'] = cv_data['fields']['name']['last'],
 		cleaned_candidate['first_name'] = cv_data['fields']['name']['first'],
 		cleaned_candidate['middle_name'] = cv_data['fields']['name']['middle'],
@@ -126,7 +133,6 @@ def clean_candidate(candidate, cv_data):
 		cleaned_candidate['birthday_month'] = cv_data['fields']['birthdate']['month'],
 		cleaned_candidate['birthday_year'] = cv_data['fields']['birthdate']['year'],
 		cleaned_candidate['photo'] = cv_data['fields']['photo']['id'],
-		cleaned_candidate['last_name'] = cv_data['fields']['name']['last'],
 	cleaned_candidate['externals'] = \
 		[
 			{
@@ -142,3 +148,15 @@ def clean_candidate(candidate, cv_data):
 				"account_source": None
 			}
 		]
+	if 'position' not in cleaned_candidate:
+		cleaned_candidate['position'] = candidate['position']
+	if 'money' not in cleaned_candidate:
+		cleaned_candidate['money'] = candidate['salary']
+	with suppress(IndexError):
+		if 'last_name' not in cleaned_candidate:
+			cleaned_candidate['last_name'] = candidate['name'].split()[0]
+		if 'first_name' not in cleaned_candidate:
+			cleaned_candidate['first_name'] = candidate['name'].split()[1]
+		if 'middle_name' not in cleaned_candidate:
+			cleaned_candidate['middle_name'] = candidate['name'].split()[2]
+	return cleaned_candidate

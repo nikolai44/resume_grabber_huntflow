@@ -1,9 +1,9 @@
 import argparse
 import logging
-from os import path
+from os import path, remove
 from api import ClientApi
 from settings import IMPORT_PROGRESS_FILE
-from candidates import get_candidates, add_vacancy_id, add_status_id
+from candidates import get_candidates, add_vacancy_id, add_status_id, clean_candidate
 
 
 parser = argparse.ArgumentParser(description='Huntflow upload candidates script')
@@ -36,7 +36,16 @@ if candidates is None:
 	exit(1)
 
 with open(IMPORT_PROGRESS_FILE, 'w+') as file:
-	for candidate in candidates:
-		cv_data = api.upload_resume(candidate['cv'])
-		api.upload_candidate(candidate, cv_data)
+	try:
+		for candidate in candidates:
+			cv_data = api.upload_resume(candidate['cv'])['data']
+			candidate['cv_id'] = cv_data.get('id', None)
+			cleaned_candidate = clean_candidate(candidate, cv_data)
+			candidate['resume_id'] = api.upload_candidate(cleaned_candidate).get('id', None)
+			api.link_candidate_to_vacancy(candidate)
+			file.write(candidate['name'])
+	except Exception:
+		pass
+remove(IMPORT_PROGRESS_FILE)
+
 

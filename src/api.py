@@ -147,14 +147,19 @@ class ClientApi:
 
 	def link_candidate_to_vacancy(self, candidate):
 		link = {
-			'vacancy': candidate['position'],
-			'status': candidate['status'],
+			'vacancy': candidate['vacancy_id'],
+			'status': candidate['status_id'],
+			'files': [
+				{
+					'id': candidate['resume_id']
+				}
+			],
 			'comment': candidate['comment'],
+			"rejection_reason": None
 		}
 		responce = self.__request_validation(
 			self.api.add_applicant_to_vacancy(),
-			json_=candidate
+			json_=link
 		)
-
 		return responce
 
