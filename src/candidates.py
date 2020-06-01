@@ -31,6 +31,9 @@ def get_candidates(basedir, db_file):
 	for candidate in all_candidates:
 		if candidate['name'] not in ready_candidates:
 			nesesarry_candidates.append(candidate)
+		else:
+			logging.warning(f'Кандидат {candidate["name"]} '
+							f'уже был внесён в базу данных сайта при последнем запуске скрипта')
 
 	for candidate in nesesarry_candidates:
 		for cv in cv_filenames:

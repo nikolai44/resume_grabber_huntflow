@@ -8,7 +8,7 @@ from candidates import get_candidates, add_vacancy_id, add_status_id, clean_cand
 
 parser = argparse.ArgumentParser(description='Huntflow upload candidates script')
 parser.add_argument('-t', '--token', help='API token', required=True)
-parser.add_argument('-p', '--path', help='Path to database', required=False, default='../db/')
+parser.add_argument('-p', '--path', help='Path to database', required=False, default='db/')
 parser.add_argument('-f', '--filename', help='Excel db filename', required=False, default='Тестовая база.xlsx')
 args = parser.parse_args()
 basepath = args.path
@@ -42,7 +42,8 @@ with open(path.join(basepath, IMPORT_PROGRESS_FILE), 'w+') as file:
 		candidate['cv_id'] = cv_data.get('id', None)
 		cleaned_candidate = clean_candidate(candidate, cv_data)
 		candidate['resume_id'] = api.upload_candidate(cleaned_candidate)['data'].get('id', None)
-		print(api.link_candidate_to_vacancy(candidate))
+		api.link_candidate_to_vacancy(candidate)
+		print(f"Кандидат {candidate['name']} успешно добавлен в базу")
 		file.write(candidate['name'] + '\n')
 
 remove(path.join(basepath, IMPORT_PROGRESS_FILE))
