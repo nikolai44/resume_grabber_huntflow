@@ -40,7 +40,7 @@ class Api:
 							 **kwargs)
 
 	def add_applicant_to_vacancy(self, *args, **kwargs):
-		return requests.post(BASE_URL + f'account/{args[0]}/applicants',
+		return requests.post(BASE_URL + f'account/{args[0]}/applicants/{args[1]}/vacancy',
 							 **kwargs)
 
 
@@ -52,6 +52,7 @@ class ClientApi:
 			"Authorization": f"Bearer {token}",
 			'User-Agent': 'resume_grabber/1.0 (more.pure.i@gmail.com)'
 		}
+		self.applicant_id = ""
 		self.delay = 1 / ratelimit
 		self.retries = 3
 		# нужно отлавливать исключение при получении id
@@ -61,7 +62,7 @@ class ClientApi:
 		self.account_id = r.json()['items'][0]['id']
 
 	def __request_validation(self, api_call, params=None, headers=None, json_=None,
-							 files=None):  # сделано не декоратором для облегчения тестирования
+							files=None):  # сделано не декоратором для облегчения тестирования
 		delay = self.delay
 		r = None
 		headers = headers or {}
@@ -70,6 +71,7 @@ class ClientApi:
 			try:
 				r = api_call(
 					self.account_id,
+					self.applicant_id,		# плохо спроектировано, нужно всё в кварги
 					params=params,
 					headers=headers,
 					json=json_,
@@ -157,8 +159,9 @@ class ClientApi:
 			'comment': candidate['comment'],
 			"rejection_reason": None
 		}
+		self.applicant_id = candidate['resume_id']
 		responce = self.__request_validation(
-			self.api.add_applicant_to_vacancy(),
+			self.api.add_applicant_to_vacancy,
 			json_=link
 		)
 		return responce

@@ -61,7 +61,7 @@ def get_ready_candidates(basedir) -> set:
 	candidates = set()
 	with open(path.join(basedir, IMPORT_PROGRESS_FILE), 'r') as f:
 		for line in f:
-			candidates.add(line)
+			candidates.add(line.replace('\n', ''))
 	return candidates
 
 
@@ -113,26 +113,30 @@ def add_status_id(canditates: list, statuses: list):
 def clean_candidate(candidate, cv_data):
 	# ухх
 	cleaned_candidate = dict()
-	last_name = cv_data['fields']['name']['last'],
-	print(type(cv_data['fields']['name']['last']))
-	print(type(last_name))
-	with suppress(KeyError):
-		last_name = cv_data['fields']['name']['last'],
-		print(type(cv_data['fields']['name']['last']))
-		print(type(last_name))
-		last_name = str(last_name)
-		cleaned_candidate['last_name'] = cv_data['fields']['name']['last'],
-		cleaned_candidate['first_name'] = cv_data['fields']['name']['first'],
-		cleaned_candidate['middle_name'] = cv_data['fields']['name']['middle'],
-		cleaned_candidate['phone'] = cv_data['fields']['phones'][0],
-		cleaned_candidate['email'] = cv_data['fields']['email'],
-		cleaned_candidate['position'] = cv_data['position'],
-		cleaned_candidate['company'] = cv_data['fields']['experience'][0]['company'],
-		cleaned_candidate['money'] = cv_data['salary'],
-		cleaned_candidate['birthday_day'] = cv_data['fields']['birthdate']['day'],
-		cleaned_candidate['birthday_month'] = cv_data['fields']['birthdate']['month'],
-		cleaned_candidate['birthday_year'] = cv_data['fields']['birthdate']['year'],
-		cleaned_candidate['photo'] = cv_data['fields']['photo']['id'],
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['last_name'] = cv_data['fields']['name']['last']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['first_name'] = cv_data['fields']['name']['first']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['middle_name'] = cv_data['fields']['name']['middle']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['phone'] = cv_data['fields']['phones'][0]
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['email'] = cv_data['fields']['email']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['position'] = cv_data['fields']['position']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['company'] = cv_data['fields']['experience'][0]['company']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['money'] = cv_data['fields']['salary']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['birthday_day'] = cv_data['fields']['birthdate']['day']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['birthday_month'] = cv_data['fields']['birthdate']['month']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['birthday_year'] = cv_data['fields']['birthdate']['year']
+	with suppress(KeyError, TypeError):
+		cleaned_candidate['photo'] = cv_data['photo']['id']
 	cleaned_candidate['externals'] = \
 		[
 			{
@@ -148,9 +152,9 @@ def clean_candidate(candidate, cv_data):
 				"account_source": None
 			}
 		]
-	if 'position' not in cleaned_candidate:
+	if 'position' not in cleaned_candidate or cleaned_candidate['position'] is None:
 		cleaned_candidate['position'] = candidate['position']
-	if 'money' not in cleaned_candidate:
+	if 'money' not in cleaned_candidate or cleaned_candidate['money'] is None:
 		cleaned_candidate['money'] = candidate['salary']
 	with suppress(IndexError):
 		if 'last_name' not in cleaned_candidate:

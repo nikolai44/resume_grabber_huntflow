@@ -11,6 +11,7 @@ parser.add_argument('-t', '--token', help='API token', required=True)
 parser.add_argument('-p', '--path', help='Path to database', required=False, default='../db/')
 parser.add_argument('-f', '--filename', help='Excel db filename', required=False, default='Тестовая база.xlsx')
 args = parser.parse_args()
+basepath = args.path
 
 # получаем данные из апи
 try:
@@ -35,17 +36,13 @@ if candidates is None:
 	logging.error("Cant add vacancy_id")
 	exit(1)
 
-with open(IMPORT_PROGRESS_FILE, 'w+') as file:
-	try:
-		for candidate in candidates:
-			cv_data = api.upload_resume(candidate['cv'])['data']
-			candidate['cv_id'] = cv_data.get('id', None)
-			cleaned_candidate = clean_candidate(candidate, cv_data)
-			candidate['resume_id'] = api.upload_candidate(cleaned_candidate).get('id', None)
-			api.link_candidate_to_vacancy(candidate)
-			file.write(candidate['name'])
-	except Exception:
-		pass
-remove(IMPORT_PROGRESS_FILE)
+with open(path.join(basepath, IMPORT_PROGRESS_FILE), 'w+') as file:
+	for candidate in candidates:
+		cv_data = api.upload_resume(candidate['cv'])['data']
+		candidate['cv_id'] = cv_data.get('id', None)
+		cleaned_candidate = clean_candidate(candidate, cv_data)
+		candidate['resume_id'] = api.upload_candidate(cleaned_candidate)['data'].get('id', None)
+		print(api.link_candidate_to_vacancy(candidate))
+		file.write(candidate['name'] + '\n')
 
-
+remove(path.join(basepath, IMPORT_PROGRESS_FILE))
